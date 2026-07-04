@@ -15,13 +15,26 @@ This rewrite keeps the dependency surface as small as possible: **only two direc
 
 Supported formats and the tag each one writes:
 
-| Format | Lyrics location |
-|--------|----------------|
-| `.flac` | `LYRICS` Vorbis comment |
-| `.mp3` | `USLT` (unsynchronised lyrics) ID3v2 frame |
-| `.ogg` | `LYRICS` Vorbis comment |
-| `.opus` | `LYRICS` Vorbis comment |
-| `.m4a` / `.mp4` / `.m4b` / `.aac` | `©lyr` atom in the `ilst` box |
+| Format                            | Lyrics location                            |
+| --------------------------------- | ------------------------------------------ |
+| `.flac`                           | `LYRICS` Vorbis comment                    |
+| `.mp3`                            | `USLT` (unsynchronised lyrics) ID3v2 frame |
+| `.ogg`                            | `LYRICS` Vorbis comment                    |
+| `.opus`                           | `LYRICS` Vorbis comment                    |
+| `.m4a` / `.mp4` / `.m4b` / `.aac` | `©lyr` atom in the `ilst` box              |
+
+---
+
+## Download
+
+You can find prebuilt Linux and Windows binaries in the release assets below.
+
+Available builds:
+
+- Linux static build: `x86_64-unknown-linux-musl`
+- Windows build: `x86_64-pc-windows-gnu`
+
+Download the version for your platform, extract the archive, and run the binary from your terminal.
 
 ---
 
@@ -65,18 +78,18 @@ No system libraries are required — `ring` (the TLS crypto backend) ships its o
 
 ### Options
 
-| Option | Description |
-|---|---|
-| `--folder PATH` | Sync audio files directly in one folder |
-| `--album PATH` | Sync a single album directory |
-| `--artist PATH` | Sync all albums under an artist directory |
-| `--library PATH` | Sync an entire library (artist/album structure) |
-| `--out-plain FILE` | Write paths of tracks that fell back to plain lyrics |
-| `--out-missing FILE` | Write paths of tracks not found on LRCLIB |
-| `--force` | Overwrite existing embedded lyrics |
-| `--clean-lrc` | Delete the local `.lrc` file after embedding it |
-| `--threads N` | Parallel download threads (default: 4, max: 16) |
-| `--help` | Show help |
+| Option               | Description                                          |
+| -------------------- | ---------------------------------------------------- |
+| `--folder PATH`      | Sync audio files directly in one folder              |
+| `--album PATH`       | Sync a single album directory                        |
+| `--artist PATH`      | Sync all albums under an artist directory            |
+| `--library PATH`     | Sync an entire library (artist/album structure)      |
+| `--out-plain FILE`   | Write paths of tracks that fell back to plain lyrics |
+| `--out-missing FILE` | Write paths of tracks not found on LRCLIB            |
+| `--force`            | Overwrite existing embedded lyrics                   |
+| `--clean-lrc`        | Delete the local `.lrc` file after embedding it      |
+| `--threads N`        | Parallel download threads (default: 4, max: 16)      |
+| `--help`             | Show help                                            |
 
 ---
 
@@ -151,9 +164,9 @@ src/
 
 ## Dependencies
 
-| Crate | Why |
-|---|---|
-| `rustls` | Pure-Rust TLS 1.2/1.3 (no OpenSSL) |
+| Crate          | Why                                        |
+| -------------- | ------------------------------------------ |
+| `rustls`       | Pure-Rust TLS 1.2/1.3 (no OpenSSL)         |
 | `webpki-roots` | Mozilla CA bundle embedded at compile time |
 
 Everything else — HTTP/1.1, JSON, ID3v2, FLAC, OGG, MP4, URL encoding, OGG CRC32, MPEG frame parsing — is implemented in this crate (~4,300 lines of Rust).
@@ -165,5 +178,13 @@ Everything else — HTTP/1.1, JSON, ID3v2, FLAC, OGG, MP4, URL encoding, OGG CRC
 [GPLv3](LICENSE)
 
 ## Acknowledgements
-[synclyr2metadata](https://github.com/newtonsart/synclyr2metadata)
-[LRCLIB](https://lrclib.net)
+
+This project is a Rust rewrite of
+https://github.com/newtonsart/synclyr2metadata, which is licensed
+under the GNU General Public License v3.0.
+
+Thanks to the original author and contributors of `synclyr2metadata` for the original
+project design and implementation.
+
+Thanks also to [LRCLIB](https://lrclib.net) for providing the lyric database used by
+this tool.
