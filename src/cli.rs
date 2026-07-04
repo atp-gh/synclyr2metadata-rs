@@ -7,6 +7,21 @@ use std::path::PathBuf;
 
 use crate::types::SyncConfig;
 
+/// Consume and return the required value following a command-line option.
+fn take_value(argv: &[String], i: &mut usize, flag: &str) -> Result<String, String> {
+    *i += 1;
+
+    let v = argv
+        .get(*i)
+        .ok_or_else(|| format!("missing value for {flag}"))?;
+
+    if v.starts_with('-') {
+        return Err(format!("missing value for {flag}"));
+    }
+
+    Ok(v.clone())
+}
+
 /// The sync mode chosen on the command line.
 #[derive(Debug, Clone)]
 pub enum Mode {
@@ -68,54 +83,59 @@ pub fn parse(argv: &[String]) -> Result<Args, String> {
     let mut i = 0;
     while i < argv.len() {
         let arg = argv[i].as_str();
+
         match arg {
             "--help" | "-h" => return Err("__help__".to_string()),
+
             "--force" => force = true,
+
             "--clean-lrc" => clean_lrc = true,
+
             "--threads" => {
-                i += 1;
-                let v = argv
-                    .get(i)
-                    .ok_or_else(|| "missing value for --threads".to_string())?;
+                let v = take_value(argv, &mut i, "--threads")?;
+
                 threads = v
                     .parse()
                     .map_err(|_| format!("invalid --threads value '{v}'"))?;
+
                 threads = threads.clamp(1, MAX_THREADS);
             }
+
             "--folder" | "--album" | "--artist" | "--library" => {
-                i += 1;
-                let v = argv
-                    .get(i)
-                    .ok_or_else(|| format!("missing value for {arg}"))
-                    .map(PathBuf::from)?;
+                let v = take_value(argv, &mut i, arg)?;
+                let path = PathBuf::from(v);
+
                 let new_mode = match arg {
-                    "--folder" => Mode::Folder(v),
-                    "--album" => Mode::Album(v),
-                    "--artist" => Mode::Artist(v),
-                    "--library" => Mode::Library(v),
+                    "--folder" => Mode::Folder(path),
+                    "--album" => Mode::Album(path),
+                    "--artist" => Mode::Artist(path),
+                    "--library" => Mode::Library(path),
                     _ => unreachable!(),
                 };
+
                 if mode.is_some() {
-                    return Err("multiple mode flags given (only one of --folder/--album/--artist/--library)".to_string());
+                    return Err(
+                        "multiple mode flags given (only one of --folder/--album/--artist/--library)"
+                            .to_string(),
+                    );
                 }
+
                 mode = Some(new_mode);
             }
+
             "--out-plain" => {
-                i += 1;
-                out_plain =
-                    Some(PathBuf::from(argv.get(i).ok_or_else(|| {
-                        "missing value for --out-plain".to_string()
-                    })?));
+                let v = take_value(argv, &mut i, "--out-plain")?;
+                out_plain = Some(PathBuf::from(v));
             }
+
             "--out-missing" => {
-                i += 1;
-                out_missing =
-                    Some(PathBuf::from(argv.get(i).ok_or_else(|| {
-                        "missing value for --out-missing".to_string()
-                    })?));
+                let v = take_value(argv, &mut i, "--out-missing")?;
+                out_missing = Some(PathBuf::from(v));
             }
+
             other => return Err(format!("unknown argument '{other}'")),
         }
+
         i += 1;
     }
 
